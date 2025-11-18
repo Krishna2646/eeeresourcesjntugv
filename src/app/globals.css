@@ -1,26 +1,296 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 1. Reset & Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 2. Layout Utilities */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+/* 3. Navbar Styles */
+.navbar {
+  background: white;
+  padding: 0; /* Remove padding from wrapper */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  /* FIX: This makes the navbar the anchor for Dropdowns & Overlays */
+  position: relative; 
+}
+
+.nav-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem; /* Padding lives inside here now */
+  height: 100%; 
+  /* REMOVED position: relative from here to fix the "half hidden" bug */
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #003366; /* Navy Blue */
+}
+
+.nav-links {
+  display: none; /* Hidden on mobile */
+  gap: 2rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* 4. Buttons */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+.btn-primary:hover { background-color: #0056b3; }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #ced4da;
+  color: #212529;
+}
+
+/* 5. Feature Card Animation */
+.feature-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* 6. Google Drive Style Files */
+.category-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #212529;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}
+
+.file-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  height: 180px;
+  position: relative;
+}
+
+.file-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  border-color: #b3d4fc;
+}
+
+.file-preview {
+  flex: 1;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.file-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.8;
+}
+
+.file-info {
+  padding: 1rem;
+  background: white;
+}
+
+.file-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.file-meta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-top: 4px;
+  display: block;
+}
+
+/* 7. SEARCH BAR STYLES */
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.search-input {
+  display: none; 
+  width: 100%;
+  max-width: 250px;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #495057;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #003366;
+}
+
+.search-toggle-icon {
+  display: block;
+  cursor: pointer;
+  padding: 5px;
+  color: #003366;
+}
+
+.search-input.mobile-active {
+  display: block;
+  width: 100%;
+  margin-right: 5px;
+}
+
+/* --- 8. MOBILE MENU STYLES (FIXED) --- */
+.hamburger-btn {
+  display: block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #003366;
+  padding: 5px;
+  margin-left: 0.5rem;
+  z-index: 60;
+}
+
+/* Dropdown is now relative to the full .navbar, so it spans 100% width */
+.mobile-menu-dropdown {
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #f0f0f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0; /* Reset padding */
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+  animation: slideDown 0.2s ease-out;
+}
+
+.mobile-link {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  padding: 1rem 1.5rem; /* Nice big click area */
+  border-bottom: 1px solid #f9f9f9;
+  transition: background 0.2s;
+  display: block;
+}
+
+.mobile-link:hover {
+  background-color: #f8f9fa;
+  color: #003366;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- DESKTOP OVERRIDES --- */
+@media (min-width: 768px) {
+  .nav-links {
+    display: flex;
+  }
+  .section {
+    margin-bottom: 3rem;
+  }
+  .search-input {
+    display: block !important;
+    width: 250px;
+  }
+  .search-toggle-icon {
+    display: none !important;
+  }
+  .hamburger-btn {
+    display: none;
+  }
+  .mobile-menu-dropdown {
+    display: none;
+  }
 }

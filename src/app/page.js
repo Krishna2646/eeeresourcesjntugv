@@ -1,104 +1,124 @@
-import { supabase } from '../lib/supabase'
 import Link from 'next/link'
-import SearchComponent from './components/SearchComponent'
 
-// This forces the page to be dynamic and never cache
-export const revalidate = 0 
-
-export default async function Home({ searchParams }) {
-
-  // --- FIX 1: Fix for the 'searchParams is a Promise' error ---
-  // We must "await" the searchParams just like we did for "params"
-  const resolvedSearchParams = await searchParams;
-  const searchQuery = resolvedSearchParams.query || ''
-  // --- END OF FIX 1 ---
-
-  let subjects = []
-  let resources = []
-  let error = null
-
-  if (searchQuery) {
-    // This is the simple query (no joins)
-    const { data: searchData, error: searchError } = await supabase
-      .from('resources')
-      .select('file_name, file_url, file_type')
-      .ilike('file_name', `%${searchQuery}%`) 
-
-    if (searchError) {
-      error = searchError
-    } else {
-      resources = searchData
-    }
-
-  } else {
-    // This part is the same (if no search)
-    const { data: subjectData, error: subjectError } = await supabase
-      .from('subjects')
-      .select('id, name')
-
-    subjects = subjectData
-    error = subjectError
-  }
-
-  if (error) {
-    // If our query fails for ANY reason, we'll see it.
-    return <p>Error: {error.message}</p>
-  }
+function FeatureCard({ title, caption, linkText, colorTheme, imageUrl, href }) {
+  // Define colors based on the theme prop
+  const styles = {
+    blue:   { bg: '#eff6ff', text: '#2563eb' },
+    green:  { bg: '#f0fdf4', text: '#16a34a' },
+    pink:   { bg: '#fff0f3', text: '#e11d48' },
+    purple: { bg: '#faf5ff', text: '#9333ea' },
+  }[colorTheme] || { bg: '#fff', text: '#000' };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-
-      <h1 className="text-4xl font-bold">JNTU-GV EEE Resources</h1>
-
-      <SearchComponent initialQuery={searchQuery} />
-
-      {searchQuery ? (
-        // --- Display Search Results ---
-        <div className="mt-10 w-full max-w-4xl">
-          <h2 className="text-2xl font-semibold">
-            Results for "{searchQuery}" ({resources.length})
-          </h2>
-          {resources.length > 0 ? (
-            <ul className="mt-4 space-y-2">
-              {resources.map((resource) => (
-                <li key={resource.file_url} className="flex justify-between items-center p-4 border rounded-lg bg-gray-100 dark:bg-gray-800">
-                  <div>
-                    <span className="font-medium">{resource.file_name}</span>
-                    <span className="ml-4 text-sm text-gray-500">
-                      ({resource.file_type})
-                    </span>
-                  </div>
-                  <a 
-                    href={resource.file_url} 
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Download
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4">No resources found matching your query.</p>
-          )}
-        </div>
-
-      ) : (
-        // --- Display Subject List (Original View) ---
-        <div className="mt-10">
-          <h2 className="text-2xl font-semibold">Available Subjects</h2>
-          <ul className="mt-4 list-disc pl-5">
-            {subjects.map((subject) => (
-              <li key={subject.id} className="text-lg hover:text-blue-500">
-                <Link href={`/subjects/${subject.id}`}>
-                  {subject.name}
-                </Link> { /* --- FIX 2: My typo "SLink" is now "Link" --- */ }
-              </li>
-            ))}
-          </ul>
-        </div>
+    <Link 
+      href={href} 
+      className="feature-card" // <--- This class applies the CSS hover animation
+      style={{ 
+        backgroundColor: styles.bg, 
+        borderRadius: '16px', 
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        minHeight: '180px',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+      }}
+    >
+      {/* Image in the block */}
+      {imageUrl && (
+        <img 
+          src={imageUrl} 
+          alt={title} 
+          style={{ 
+            position: 'absolute', 
+            right: '10px', 
+            bottom: '10px', 
+            width: '80px', 
+            height: '80px', 
+            objectFit: 'contain', 
+            opacity: 0.6,
+            pointerEvents: 'none'
+          }} 
+        />
       )}
+
+      {/* Top Section: Title and Caption */}
+      <div>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: '800', letterSpacing: '0.5px', marginBottom: '0.5rem', color: '#333' }}>
+          {title}
+        </h3>
+        <p style={{ fontSize: '0.9rem', color: '#666', lineHeight: '1.4' }}>
+          {caption}
+        </p>
+      </div>
+
+      {/* Bottom Link Text */}
+      <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem', fontWeight: '600', color: styles.text }}>
+        {linkText} <span>&rarr;</span>
+      </div>
+    </Link>
+  )
+}
+
+export default function Home() {
+  return (
+    <main className="container" style={{ paddingTop: '1.5rem', paddingBottom: '4rem' }}>
+      
+      {/* --- Main Heading --- */}
+      <h1 style={{ 
+        fontSize: '2.0rem', 
+        fontWeight: '800', 
+        color: '#212529', 
+        textAlign: 'center', 
+        marginTop: '2rem', 
+        marginBottom: '3rem' 
+      }}>
+        
+      </h1>
+
+      {/* --- FEATURE GRID --- */}
+      <section style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', /* Adjusted for better desktop spacing */
+        gap: '1.5rem' 
+      }}>
+        
+        <FeatureCard 
+          href="/resources"
+          colorTheme="blue"
+          title="Subjects"
+          caption="View and download notes from seniors and peers."
+          linkText="Explore Subjects"          
+        />
+          {/*imageUrl="/images/book-icon.png"*/}
+        {/*
+        <FeatureCard 
+          href="#"
+          colorTheme="pink"
+          title="Events"
+          caption="See upcoming workshops, guest lectures, and fests."
+          linkText="View Events"
+          imageUrl="/images/calendar-icon.png" 
+        />*/}
+
+        <FeatureCard 
+          href="/projects"
+          colorTheme="green"
+          title="Project Ideas"
+          caption="Discover inspiration and resources for your projects."
+          linkText="Browse Projects"           
+        />
+
+        <FeatureCard 
+          href="/tools"
+          colorTheme="purple"
+          title="Tools"
+          caption="Essential software and utilities for EEE students."
+          linkText="Check Tools" 
+        />
+      </section>
     </main>
   )
 }
