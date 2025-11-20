@@ -1,131 +1,120 @@
-⚡ eeeresources jntugv
+eeeresources jntugv
+eeeresources jntugv is a centralized academic platform developed specifically for the Electrical & Electronics Engineering (EEE) department at JNTU-GV.
 
-eeeresources jntugv is a student-driven academic platform I designed specifically for the Electrical & Electronics Engineering (EEE) department at JNTU-GV.
+This project addresses the fragmentation of academic materials by consolidating lecture notes, previous question papers, and lab manuals into a single, searchable digital library. It eliminates the reliance on scattered WhatsApp groups and isolated Google Drive links, ensuring students have reliable access to curriculum resources.
 
-I built this platform to solve a simple but frustrating problem: resources like lecture notes, previous question papers, and lab manuals are often scattered across WhatsApp groups or lost in drive folders. This project serves as a centralized, searchable digital library where students can access everything they need effortlessly.
+Core Features
+For Students (Public Access)
+Comprehensive Library: A curated repository covering the full four-year EEE curriculum.
 
-🚀 Features
+Global Search: Integrated Supabase-powered search allows users to instantly filter subjects or locate specific documents.
 
-🎓 For Students (Public Access)
+Structured Navigation: Subjects are categorized by academic year and difficulty level (Basics, Intermediate, Advanced).
 
-📚 Comprehensive Library: Access a curated collection of resources for all 4 years of the EEE curriculum.
+Intuitive Interface: A clean, responsive file grid with preview capabilities, designed to resemble familiar cloud storage interfaces.
 
-🔍 Smart Search: Instantly filter subjects or find specific files using the global search bar powered by Supabase.
+Mobile Optimization: Fully responsive design ensures accessibility on smartphones and tablets.
 
-🗂️ Organized Structure: Subjects are intuitively categorized by difficulty level (Basics, Intermediate, Advanced) and years.
+Open Access: No authentication is required for viewing or downloading materials, removing barriers to entry.
 
-📱 Google Drive-Style UI: A clean, responsive file grid with preview icons that feels familiar and easy to use.
+For Admins (Management System)
+Role-Based Access Control (RBAC):
 
-⚡ Mobile-First Design: Fully optimized for smartphones and tablets, so you can study on the go.
+Super Admin: Manages the administrative team and high-level permissions.
 
-🔓 No Login Required: I believe education should be barrier-free, so students get instant access to all materials.
+Content Admin: Student representatives authorized to upload and organize files for specific academic years.
 
-🛡️ For Admins (Secure Management)
+Admin Dashboard: A central hub for monitoring platform activity.
 
-🔐 Role-Based Access Control (RBAC):
+File Management: A custom UI for uploading, renaming, moving, and deleting files without direct database interaction.
 
-Super Admin: I have retained controls to manage the admin team (add/remove admins).
+Automated Organization: Uploads are automatically sorted into a structured Subject/Category/Filename hierarchy within cloud storage.
 
-Content Admin: Trusted student representatives can upload and manage files for their respective years.
+Tech Stack
+The platform utilizes a modern, scalable architecture focused on performance and maintainability.
 
-📊 Dashboard: A central command center to oversee the platform's activity.
+Frontend: Next.js 14 (App Router and Server Components).
 
-📂 File Manager: A powerful UI to upload, rename, move, or delete files without touching the database directly.
+Styling: Custom CSS (chosen over frameworks to ensure a lightweight, distinct design).
 
-☁️ Virtual Folder System: Automatically organizes uploads into a clean Subject/Category/Filename structure in cloud storage.
+Backend & Auth: Supabase (PostgreSQL and Row Level Security).
 
-🛠️ Tech Stack
+Storage: Supabase Storage (Document hosting).
 
-I chose a modern, scalable stack to ensure performance and ease of maintenance:
+Deployment: Vercel.
 
-Frontend: Next.js 14 (App Router, Server Components for speed)
+Local Development Setup
+Follow these steps to run the project locally for testing or development.
+**
+1. Clone the Repository**
 
-Styling: Custom CSS (I avoided heavy frameworks like Tailwind to keep the design unique and "human-made")
+Bash
 
-Database & Auth: Supabase (PostgreSQL for data, Row Level Security for protection)
-
-Storage: Supabase Storage (Secure hosting for PDFs and Docs)
-
-Deployment: Vercel (For instant global deployment)
-
-⚙️ Local Development Setup
-
-If you want to run this project on your local machine to test features or fix bugs, follow these steps:
-
-1. Clone the Repository
-
-git clone [https://github.com/Krishna2646/eeeresourcesjntugv.git](https://github.com/Krishna2646/eeeresourcesjntugv.git)
+git clone https://github.com/Krishna2646/eeeresourcesjntugv.git
 cd eeeresourcesjntugv
 
+**2. Install Dependencies**
 
-2. Install Dependencies
+Bash
 
 npm install
+**3. Configure Environment Variables**
 
+Create a .env.local file in the root directory. You will need credentials from your own Supabase project.
 
-3. Configure Environment Variables
+Code snippet
 
-Create a .env.local file in the root directory. You will need your own Supabase project credentials for this to work.
-
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url # you have to enter Ur project url to view actual changes in backend and ive provided sql settings below 
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
+**4. Run the Development Server**
 
-4. Run the Development Server
+Bash
 
 npm run dev
+Access the application at http://localhost:3000.
 
-
-Open http://localhost:3000 in your browser to see the site live!
-
-🗄️ Database Schema
-
-For those interested in the backend, I use a relational PostgreSQL schema hosted on Supabase:
+Database Architecture
+The backend relies on a relational PostgreSQL schema managed via Supabase.
 
 Tables
+subjects: Stores curriculum data.
 
-subjects: Stores subject names and difficulty levels.
+Schema: id (int8), name (text), level (int2 - determines UI color coding).
 
-id (int8), name (text), level (int2 - defines color coding)
+resources: Stores metadata for uploaded files.
 
-resources: Metadata for uploaded files.
+Schema: id (int8), file_name, file_url, file_type, category, subject_id (Foreign Key).
 
-id (int8), file_name, file_url, file_type, category (e.g., Unit 1), subject_id (FK)
+user_roles: Manages administrative permissions.
 
-user_roles: Manages admin permissions.
-
-id (uuid, FK to auth.users), role ('admin' or 'super_admin')
+Schema: id (uuid, links to auth.users), role ('admin' or 'super_admin').
 
 Security
+Row Level Security (RLS) is enforced on all tables:
 
-Row Level Security (RLS) is enabled on all tables to prevent unauthorized access.
+Public: SELECT access for subjects and resources.
 
-Public: Can SELECT (read) subjects and resources.
+Admins: INSERT, UPDATE, and DELETE access for resources.
 
-Admins: Can INSERT, UPDATE, and DELETE resources.
+Super Admins: Full management access to the user_roles table.
 
-Super Admins: Can manage the user_roles table.
+Contributing
+Contributions to the codebase are welcome. If you wish to improve the UI, fix bugs, or add features:
 
-🤝 Contributing
+Fork the repository.
 
-I built this for the community, and I welcome help from my fellow students! If you know how to code and want to improve the site (e.g., fix a bug, add a feature, or improve the UI), here is how you can contribute:
+Create a feature branch (git checkout -b feature/NewFeature).
 
-Fork this repository to your own GitHub account.
+Commit your changes (git commit -m 'Add NewFeature').
 
-Create a new branch for your feature (git checkout -b feature/AmazingFeature).
+Push to the branch (git push origin feature/NewFeature).
 
-Make your changes and commit them (git commit -m 'Add some AmazingFeature').
+Open a Pull Request for review.
 
-Push to your branch (git push origin feature/AmazingFeature).
+Note: If you wish to contribute by uploading notes rather than coding, please contact the project maintainer to request Content Admin access.
 
-Open a Pull Request on this repository, and I will review it!
-
-Note: If you just want to upload notes and don't code, please contact me to become a Content Admin instead.
-
-📜 License
-
+License
 Distributed under the MIT License. See LICENSE for more information.
 
-<div align="center">
-<strong>Built with ❤️ by the EEE Students of JNTU-GV</strong>
-</div>
+Built by the EEE Students of JNTU-GV
