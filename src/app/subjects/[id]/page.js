@@ -34,6 +34,42 @@ const DefaultIcon = () => (
   </svg>
 )
 
+// ... imports ...
+
+// --- ENHANCED DYNAMIC SEO ---
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params
+  const subjectID = resolvedParams.id
+
+  const { data: subject } = await supabase
+    .from('subjects')
+    .select('name')
+    .eq('id', subjectID)
+    .single()
+
+  if (!subject) {
+    return { title: 'Subject Not Found' }
+  }
+
+  return {
+    title: `${subject.name} Notes & Material | JNTU-GV EEE`,
+    description: `Download free PDF notes, R23/R20 previous question papers, and lab manuals for ${subject.name}. Best resource for JNTU-GV EEE students.`,
+    keywords: [
+      subject.name,
+      `${subject.name} JNTU-GV`,
+      `${subject.name} notes pdf`,
+      `${subject.name} previous papers`,
+      'JNTU-GV EEE',
+      'R23 Syllabus',
+      'B.Tech EEE Notes'
+    ],
+    openGraph: {
+      title: `${subject.name} - JNTU-GV EEE Resources`,
+      description: `Get ${subject.name} notes and materials instantly.`,
+    }
+  }
+}
+// ... rest of the file ..
 // --- INTERNAL HEADER COMPONENT (No Import Needed) ---
 function PageHeader({ title, subtitle, parentLink = "/" }) {
   return (
