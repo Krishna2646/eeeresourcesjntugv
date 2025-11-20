@@ -3,47 +3,86 @@ import "./globals.css";
 import Navbar from './components/Navbar';
 
 export const metadata = {
-  // 1. Base URL (Crucial for indexing)
-  metadataBase: new URL('https://eeeresourcesjntugv.vercel.app'),
+  title: 'All EEE Subjects | JNTU-GV Syllabus',
+  description: 'Browse the complete list of JNTU-GV EEE subjects. Access notes for R23, R20, and R19 regulations grouped by semester.',
+}
 
-  // 2. Google Verification (This proves ownership)
+**For `src/app/events/page.js`:**
+Add this at the top:
+```javascript
+export const metadata = {
+  title: 'Campus Events & Fests | JNTU-GV',
+  description: 'Stay updated with the latest workshops, tech fests, and guest lectures happening at JNTU-GV College of Engineering.',
+}
+
+**For `src/app/projects/page.js`:**
+Add this at the top:
+```javascript
+export const metadata = {
+  title: 'EEE Project Ideas | Mini & Major Projects',
+  description: 'Innovative electrical engineering project ideas for B.Tech students. Circuit diagrams, code, and abstract references.',
+}
+
+---
+
+### **Final Step: Redeploy**
+
+1.  **Save all files.**
+2.  **Push to GitHub:**
+    ```bash
+    git add .
+    git commit -m "SEO: Add Structured Data and Rich Keywords"
+    git push
+    
+**When will you see results?**
+* Google takes **3-4 days** to re-crawl your site after you submit the sitemap.
+* Once indexed, searching "JNTU-GV [Subject Name]" should start showing your site near the top because your titles match exactly what students search for!
+export const metadata = {
+  metadataBase: new URL('https://eeeresourcesjntugv.vercel.app'),
   verification: {
     google: 'f7ILGVqQ7FT-6HagtB0D4q5adGJ5WJuciN2P8zkwsfs',
   },
-
-  // 3. Standard SEO
   title: {
-    default: 'eeeresources jntugv | Student Learning Platform',
+    default: 'eeeresources jntugv | Official Student Portal',
     template: '%s | eeeresources jntugv',
   },
-  description: 'A student-driven platform for EEE resources, events, and opportunities at JNTU-GV. Download notes, previous papers, and lab manuals.',
-  keywords: ['JNTU-GV', 'EEE', 'Resources', 'Notes', 'JNTU Vizianagaram', 'Electrical Engineering'],
-
-  // 4. Open Graph (Social Media Previews)
+  description: 'The #1 resource hub for JNTU-GV EEE students. Download lecture notes, R23/R20 syllabus previous papers, lab manuals, and project ideas.',
+  keywords: ['JNTU-GV', 'EEE', 'JNTU Vizianagaram', 'B.Tech Notes', 'R23 Syllabus', 'R20 Syllabus', 'Electrical Engineering Resources', 'JNTU-GV EEE Notes'],
   openGraph: {
     title: 'eeeresources jntugv',
-    description: 'Access EEE notes, papers, and resources instantly.',
+    description: 'Access JNTU-GV EEE notes, papers, and resources instantly.',
     url: 'https://eeeresourcesjntugv.vercel.app',
     siteName: 'eeeresources jntugv',
     locale: 'en_US',
     type: 'website',
   },
-
-  // 5. Robots (Allow Google to scan)
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
   },
 };
 
 export default function RootLayout({ children }) {
+  // Schema.org Structured Data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    name: 'eeeresources jntugv',
+    url: 'https://eeeresourcesjntugv.vercel.app',
+    logo: 'https://eeeresourcesjntugv.vercel.app/favicon.ico',
+    sameAs: [
+      'https://jntugv.edu.in', 
+    ],
+    description: 'A student-driven platform sharing academic resources for EEE students at JNTU-GV.',
+  }
+
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Suspense fallback={<div style={{height: '60px', background: 'white'}}></div>}>
           <Navbar />
         </Suspense>
