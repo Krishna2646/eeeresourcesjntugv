@@ -1,7 +1,7 @@
 import { supabase } from '../../../lib/supabase'
 import Link from 'next/link'
 
-// --- 1. ENHANCED SEO METADATA (The "Google Bait") ---
+// --- 1. ENHANCED SEO METADATA ---
 export async function generateMetadata({ params }) {
   const resolvedParams = await params
   const subjectID = resolvedParams.id
@@ -52,10 +52,11 @@ const DefaultIcon = () => (
   </svg>
 )
 
-// --- 3. INTERNAL HEADER COMPONENT ---
+// --- 3. INTERNAL HEADER COMPONENT (Updated with Circular Arrow) ---
 function PageHeader({ title, subtitle, parentLink = "/" }) {
   return (
     <div style={{ marginBottom: '3rem' }}>
+      {/* CIRCULAR BACK BUTTON */}
       <Link href={parentLink} style={{ 
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         width: '45px', height: '45px', borderRadius: '50%',
@@ -70,7 +71,7 @@ function PageHeader({ title, subtitle, parentLink = "/" }) {
       </Link>
       
       <h1 style={{ 
-        fontSize: '2.5rem', fontWeight: '800', color: '#111827',
+        fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', fontWeight: '800', color: '#111827',
         marginBottom: '0.5rem', lineHeight: 1.2
       }}>
         {title}
