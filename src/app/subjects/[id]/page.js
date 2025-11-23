@@ -12,15 +12,19 @@ export async function generateMetadata({ params }) {
     .eq('id', subjectID)
     .single()
 
+  if (!subject) {
+    return { title: 'Subject Not Found' }
+  }
+
   return {
-    title: subject ? `${subject.name} | JNTU-GV Resources` : 'Subject Not Found',
-    description: `Download PDF notes, previous question papers, and lab manuals for ${subject?.name}.`,
+    title: `${subject.name} Notes & Material | JNTU-GV EEE`,
+    description: `Download free PDF notes, previous question papers, and lab manuals for ${subject.name}.`,
   }
 }
 
 export const revalidate = 0
 
-// --- SVG ICONS ---
+// --- 2. ICONS ---
 const PdfIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="file-icon" style={{color: '#ef4444'}}>
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
@@ -34,20 +38,27 @@ const DefaultIcon = () => (
   </svg>
 )
 
-// --- INTERNAL HEADER COMPONENT (No Import Needed) ---
+// --- 3. HEADER COMPONENT (With Circular Back Arrow) ---
 function PageHeader({ title, subtitle, parentLink = "/" }) {
   return (
     <div style={{ marginBottom: '3rem' }}>
+      {/* Circular Back Button - Matches Resources Page style exactly */}
       <Link href={parentLink} style={{ 
-        display: 'inline-flex', alignItems: 'center', gap: '5px',
-        color: '#6b7280', fontWeight: '600', marginBottom: '1rem', fontSize: '0.9rem',
-        textDecoration: 'none'
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: '40px', height: '40px', borderRadius: '50%',
+        backgroundColor: 'white', border: '1px solid #e5e7eb',
+        color: '#374151', marginBottom: '1.5rem',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+        textDecoration: 'none',
+        transition: 'transform 0.2s ease'
       }}>
-        <span>&larr;</span> Back
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
       </Link>
       
       <h1 style={{ 
-        fontSize: '2.5rem', fontWeight: '800', color: '#111827',
+        fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', fontWeight: '800', color: '#111827',
         marginBottom: '0.5rem', lineHeight: 1.2
       }}>
         {title}
@@ -62,25 +73,26 @@ function PageHeader({ title, subtitle, parentLink = "/" }) {
   )
 }
 
+// --- 4. MAIN PAGE ---
 export default async function SubjectPage({ params }) {
   const resolvedParams = await params
   const subjectID = resolvedParams.id
 
-  // 1. Fetch Subject Details
+  // A. Fetch Subject Name
   const { data: subject } = await supabase
     .from('subjects')
     .select('name')
     .eq('id', subjectID)
     .single()
 
-  // 2. Fetch Resources
+  // B. Fetch Files
   const { data: resources } = await supabase
     .from('resources')
     .select('*')
     .eq('subject_id', subjectID)
     .order('created_at', { ascending: false })
 
-  // 3. Group by Category
+  // C. Group Files by Category
   const grouped = resources?.reduce((acc, file) => {
     const cat = file.category || 'Uncategorized'
     if (!acc[cat]) acc[cat] = []
@@ -88,7 +100,7 @@ export default async function SubjectPage({ params }) {
     return acc
   }, {}) || {}
 
-  // Standard Sort Order
+  // D. Sort Categories
   const categoryOrder = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5", "Textbooks", "Lab Manuals", "Previous Papers", "Uncategorized"]
   
   const sortedCategories = Object.keys(grouped).sort((a, b) => {
@@ -96,25 +108,24 @@ export default async function SubjectPage({ params }) {
   })
 
   return (
-    <main className="page-container">
+    <main className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
       
-      {/* Use the Internal Header */}
       <PageHeader 
         title={subject?.name || "Loading..."} 
         subtitle="Access notes, assignments, and references below."
         parentLink="/resources"
       />
 
-      {/* Content Area */}
       {resources?.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '4rem', color: '#888' }}>
-          <p>No files uploaded for this subject yet.</p>
+        <div style={{ textAlign: 'center', padding: '4rem', background: 'white', borderRadius: '12px', border: '1px dashed #ccc' }}>
+          <p style={{color: '#888', fontSize: '1.1rem'}}>No files uploaded for this subject yet.</p>
         </div>
       ) : (
         <div>
           {sortedCategories.map((category) => (
             <div key={category}>
               
+              {/* Category Title */}
               <h3 className="category-header">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
@@ -122,6 +133,7 @@ export default async function SubjectPage({ params }) {
                 {category}
               </h3>
 
+              {/* Google Drive Grid Blocks */}
               <div className="file-grid">
                 {grouped[category].map((file) => (
                   <a 

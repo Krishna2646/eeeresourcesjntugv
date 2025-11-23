@@ -9,11 +9,13 @@ export default function ManageTeam() {
   const router = useRouter()
   const [admins, setAdmins] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState(null) // To prevent deleting self
   
   // Form State
   const [newEmail, setNewEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [creating, setCreating] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
 
   useEffect(() => {
     checkAccessAndFetch()
@@ -27,6 +29,7 @@ export default function ManageTeam() {
       router.push('/admin/login')
       return
     }
+    setCurrentUser(user)
 
     // 2. SECURITY CHECK: Is this user a Super Admin?
     const { data: roleData } = await supabase
@@ -42,8 +45,12 @@ export default function ManageTeam() {
       return
     }
 
-    // 3. If Safe, Fetch the Team List
-    const { data } = await supabase.from('user_roles').select('*')
+    // 3. Fetch Team
+    fetchAdmins()
+  }
+
+  async function fetchAdmins() {
+    const { data } = await supabase.from('user_roles').select('*').order('role', { ascending: false })
     if (data) setAdmins(data)
     setLoading(false)
   }
@@ -70,9 +77,29 @@ export default function ManageTeam() {
       alert("Admin created successfully!")
       setNewEmail('')
       setNewPassword('')
-      checkAccessAndFetch() // Refresh list
+      fetchAdmins() // Refresh list
     }
     setCreating(false)
+  }
+
+  const handleDeleteAdmin = async (id, email) => {
+    if (!confirm(`Are you sure you want to remove ${email}? They will lose all access immediately.`)) return
+    
+    setDeletingId(id)
+
+    // Call our new delete function
+    const { error } = await supabase.rpc('delete_admin_user', {
+        target_user_id: id
+    })
+
+    if (error) {
+        alert("Error: " + error.message)
+    } else {
+        // Update UI immediately
+        setAdmins(admins.filter(a => a.id !== id))
+        alert("Admin removed successfully.")
+    }
+    setDeletingId(null)
   }
 
   if (loading) return <div className="container" style={{paddingTop:'3rem'}}>Verifying Super Admin Access...</div>
@@ -110,7 +137,7 @@ export default function ManageTeam() {
         {admins.map(admin => (
             <div key={admin.id} style={{ 
                 background: 'white', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid #eee',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem'
             }}>
                 <div>
                     <div style={{ fontWeight: '600', fontSize: '1rem' }}>{admin.email}</div>
@@ -118,6 +145,21 @@ export default function ManageTeam() {
                         {admin.role === 'super_admin' ? <span style={{color:'#7c3aed'}}>Super Admin</span> : 'Admin'}
                     </div>
                 </div>
+
+                {/* Delete Button (Only show if it's NOT you) */}
+                {currentUser?.id !== admin.id && (
+                    <button 
+                        onClick={() => handleDeleteAdmin(admin.id, admin.email)}
+                        disabled={deletingId === admin.id}
+                        className="btn"
+                        style={{ 
+                            backgroundColor: '#fee2e2', color: '#dc2626', fontSize: '0.85rem', 
+                            padding: '0.5rem 1rem', border: '1px solid #fecaca'
+                        }}
+                    >
+                        {deletingId === admin.id ? 'Removing...' : 'Remove Access'}
+                    </button>
+                )}
             </div>
         ))}
       </div>

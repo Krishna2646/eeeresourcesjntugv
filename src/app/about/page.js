@@ -129,8 +129,8 @@ export default function AboutPage() {
       {/* --- FOOTER CTA --- */}
       <div style={{ marginTop: '5rem', textAlign: 'center', padding: '2rem', borderTop: '1px solid #eee' }}>
         <p style={{ color: '#6b7280', marginBottom: '1rem' }}>Have something to share? Want to join the team?</p>
-        <Link href="mailto:admin@jntugv.edu.in" style={{ color: '#003366', fontWeight: '700', textDecoration: 'underline' }}>
-          Contact the Admins
+        <Link href="mailto:contacteeevolve@gmail.com" style={{ color: '#003366', fontWeight: '700', textDecoration: 'underline' }}>
+          Contact the Admin
         </Link>
       </div>
 

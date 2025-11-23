@@ -2,34 +2,53 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { useRouter, usePathname } from 'next/navigation' // Added usePathname
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function AdminLayout({ children }) {
   const router = useRouter()
-  const pathname = usePathname() // Get the current URL
+  const pathname = usePathname()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function checkAuth() {
-      // 1. EXCEPTION: If we are already on the login page, stop checking.
+    // 1. Define the check function
+    const checkSession = async () => {
+      // Exception: Don't protect the login page itself
       if (pathname === '/admin/login') {
         setLoading(false)
         return
       }
 
-      // 2. CHECK: Ask Supabase for the user
-      const { data: { user } } = await supabase.auth.getUser()
+      // Use getSession() instead of getUser(). 
+      // getSession reads from the browser's LocalStorage instantly (Fast & Persistent).
+      const { data: { session } } = await supabase.auth.getSession()
 
-      if (!user) {
-        // If not logged in, send to the NEW admin login page
+      if (!session) {
+        // No saved session found -> Login
         router.push('/admin/login')
       } else {
-        // If logged in, allow access
+        // Saved session found -> Let them in
         setLoading(false)
       }
     }
 
-    checkAuth()
+    // 2. Run the check immediately
+    checkSession()
+
+    // 3. Set up a listener for future changes (Sign Out / Token Refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (pathname === '/admin/login') return
+
+      if (event === 'SIGNED_OUT') {
+        router.push('/admin/login')
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setLoading(false)
+      }
+    })
+
+    // Cleanup the listener when leaving
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [router, pathname])
 
   if (loading) {
